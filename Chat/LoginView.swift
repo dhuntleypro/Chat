@@ -7,37 +7,22 @@
 
 import SwiftUI
 import Firebase
-import FirebaseStorage
-
-class FirebaseManager: NSObject {
-    let auth: Auth
-    let storage : Storage
-    
-    static let shared = FirebaseManager()
-    
-
-    override init() {
-        FirebaseApp.configure()
-        
-        self.auth = Auth.auth()
-        self.storage = Storage.storage()
-        
-        super.init()
-    }
-}
-
-
-// When installing firebase select : Firebase auth + Firebase Storage
-// Install firestore through cocopods
+// import FirebaseFirestore
 
 
 struct LoginView: View {
-    @State var isLoginMode = false
-    @State var email = ""
-    @State var password = ""
+    
+    let didCompleteLoginProcess: () -> ()
+    
+    
+    
+    @State private var isLoginMode = false
+    @State private var email = ""
+    @State private var password = ""
+    @State private var isAdmin = false
 
     // Error Message
-    @State var loginStatusMessage = ""
+    @State private  var loginStatusMessage = ""
     
     // Image Picker
     @State var shouldShowImagePicker = false
@@ -136,7 +121,7 @@ struct LoginView: View {
     // [ firebase ]
     private func handleAction() {
         if isLoginMode {
-            print("Should log into Firebase with existing credentials")
+            loginUser()
         } else {
             createNewAccount()
         }
@@ -152,7 +137,10 @@ struct LoginView: View {
             }
             
             print("Successfully logged in as user: \(result?.user.uid ?? "")")
+            
             self.loginStatusMessage = "Successfully logged in as user: \(result?.user.uid ?? "")"
+            
+            self.didCompleteLoginProcess()
         
         }
         
@@ -160,6 +148,9 @@ struct LoginView: View {
     
     // [ firebase - create user ]
     private func createNewAccount() {
+        if self.image == nil {
+            self.loginStatusMessage = "You must select an avatar image"
+        }
         FirebaseManager.shared.auth.createUser(withEmail: email, password: password) { result, err in
             if let err = err {
                 print("Failed to create user:", err)
@@ -172,6 +163,7 @@ struct LoginView: View {
             
             self.persistImageToStorage()
         }
+        
     }
     
     private func persistImageToStorage() {
@@ -198,15 +190,43 @@ struct LoginView: View {
                 
                 // Get url of image
                 print(url?.absoluteString ?? self.loginStatusMessage)
+                
+                guard let url = url else { return }
+                self.storeUserInformation(imageProfileUrl: url)
             }
         }
-    
-    
+        
+        
+    }
+    private func storeUserInformation(imageProfileUrl: URL) {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        
+        let userData = ["email" : self.email ,
+                        "uid" : uid ,
+                        "profileImageUrl" : imageProfileUrl.absoluteString,
+                        "isAdmin" : self.isAdmin
+        ] as [String : Any]
+        
+        FirebaseManager.shared.firestore
+            .collection("users")
+            .document(uid)
+            .setData(userData) { err in
+                if let err = err {
+                    print(err)
+                    self.loginStatusMessage = "\(err)"
+                    return
+                }
+                
+                print("Success")
+                self.didCompleteLoginProcess()
+            }
     }
 }
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView(didCompleteLoginProcess: {
+            
+        })
     }
 }
