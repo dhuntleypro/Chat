@@ -7,7 +7,9 @@
 
 import SwiftUI
 
-struct ChatUser {
+struct ChatUser: Identifiable {
+    var id: String { uid }
+    
     let uid , email, profileImageUrl : String
     let isAdmin : Bool
     

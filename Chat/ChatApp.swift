@@ -9,6 +9,7 @@ import SwiftUI
 
 // command + 1 : shows side menu
 // control + command + e : edit all with same name in application
+// control 6 : jump to component
 
 
 

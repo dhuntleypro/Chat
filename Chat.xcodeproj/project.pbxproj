@@ -20,6 +20,7 @@
 		86786DB92762812E00D8EDDD /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86786DB82762812D00D8EDDD /* FirebaseManager.swift */; };
 		86786DBD27628B9F00D8EDDD /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 86786DBC27628B9F00D8EDDD /* SDWebImageSwiftUI */; };
 		86786DC02762B19C00D8EDDD /* ChatUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86786DBF2762B19C00D8EDDD /* ChatUser.swift */; };
+		86786DC22762B87100D8EDDD /* CreateNewMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86786DC12762B87000D8EDDD /* CreateNewMessageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		86786DB52762657100D8EDDD /* MainMessagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMessagesView.swift; sourceTree = "<group>"; };
 		86786DB82762812D00D8EDDD /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
 		86786DBF2762B19C00D8EDDD /* ChatUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatUser.swift; sourceTree = "<group>"; };
+		86786DC12762B87000D8EDDD /* CreateNewMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNewMessageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				86786DB52762657100D8EDDD /* MainMessagesView.swift */,
+				86786DC12762B87000D8EDDD /* CreateNewMessageView.swift */,
 			);
 			path = MainMessages;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 			files = (
 				86786DC02762B19C00D8EDDD /* ChatUser.swift in Sources */,
 				86786DB12762213700D8EDDD /* ImagePicker.swift in Sources */,
+				86786DC22762B87100D8EDDD /* CreateNewMessageView.swift in Sources */,
 				86786DB62762657100D8EDDD /* MainMessagesView.swift in Sources */,
 				86786DB92762812E00D8EDDD /* FirebaseManager.swift in Sources */,
 				86786D9E27620A8800D8EDDD /* LoginView.swift in Sources */,
