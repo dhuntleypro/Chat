@@ -77,6 +77,12 @@ class ChatLogViewModel: ObservableObject {
                     
                 })
                 
+                // change made scroll to bottom...
+                DispatchQueue.main.async {
+                    self.count += 1
+                }
+               
+                
                 /*
                  // real time listsener for everything chaging all messages...
                  querySnapshot?.documents.forEach({ queryDocumentSnapshot in
@@ -123,6 +129,9 @@ class ChatLogViewModel: ObservableObject {
             }
             print("Sucessfully saved current user sending messages")
             self.chatText = ""
+            
+            // change made scroll to bottom...
+            self.count += 1
         }
         
         // give the revicing user
@@ -142,8 +151,11 @@ class ChatLogViewModel: ObservableObject {
             
         }
         
-        
+       
     }
+    
+    // tracks when ever there is a change
+    @Published var count = 0
 }
 
 struct ChatLogView: View {
@@ -167,49 +179,34 @@ struct ChatLogView: View {
         }
         .navigationTitle(chatUser?.email ?? "")
         .navigationBarTitleDisplayMode(.inline)
+//        .navigationBarItems(trailing: Button(action: {
+//            vm.count += 1
+//        }) {
+//            Text("Count: \(vm.count)")
+//        })
     }
     
+    static let emptyScrollToString = "Empty"
     private var messagesView: some View {
         ScrollView {
-            ForEach(vm.chatMessages) { message in
+            ScrollViewReader { scrollViewProxy in
                 VStack {
-                    if message.fromId == FirebaseManager.shared.auth.currentUser?.uid {
-                        HStack {
-                            Spacer()
-                           
-                            HStack {
-                                Text(message.text)
-                                    .foregroundColor(.white)
-                            }
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(8)
-                        }
-                       
-                    } else {
-                        HStack {
-                            
-                            HStack {
-                                Text(message.text)
-                                    .foregroundColor(.black)
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(8)
-                            
-                            Spacer()
-
-                        }
-                       
+                    ForEach(vm.chatMessages) { message in
+                        MessageView(message: message)
+                    }
+                    HStack{Spacer()}
+                    .id(Self.emptyScrollToString)
+                }
+                // Everytime the count state changes it will auto scroll to the bottom
+                .onReceive(vm.$count) { _ in
+                    withAnimation(.easeInOut(duration: 0.05)) {
+                        scrollViewProxy.scrollTo(Self.emptyScrollToString, anchor: .bottom)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.top, 8)
+                
                
             }
-            //  .frame(maxWidth: .infinity)
             
-            HStack{Spacer()}
         }
         .background(Color(.init(white: 0.95, alpha: 1)))
         .safeAreaInset(edge: .bottom) {
@@ -252,6 +249,50 @@ struct ChatLogView: View {
         .padding(.vertical, 8)
     }
 }
+
+
+
+
+
+struct MessageView: View {
+    let message : ChatMessage
+    var body: some View {
+        VStack {
+            if message.fromId == FirebaseManager.shared.auth.currentUser?.uid {
+                HStack {
+                    Spacer()
+                    
+                    HStack {
+                        Text(message.text)
+                            .foregroundColor(.white)
+                    }
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(8)
+                }
+                
+            } else {
+                HStack {
+                    
+                    HStack {
+                        Text(message.text)
+                            .foregroundColor(.black)
+                    }
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(8)
+                    
+                    Spacer()
+                    
+                }
+                
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+}
+
 
 
 struct ChatLogView_Previews: PreviewProvider {
