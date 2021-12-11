@@ -8,24 +8,8 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import Firebase
+import FirebaseFirestoreSwift
 
-struct RecentMessage: Identifiable {
-    var id: String { documentId }
-    
-    let documentId: String
-    let text, fromId, toId , email, profileImageUrl: String
-    let timestamp : Timestamp
-    
-    init(documentId: String, data: [String: Any]) {
-        self.documentId = documentId
-        self.text = data[FirebaseConstants.text] as? String ?? ""
-        self.fromId = data[FirebaseConstants.fromId] as? String ?? ""
-        self.toId = data[FirebaseConstants.toId] as? String ?? ""
-        self.email = data[FirebaseConstants.email] as? String ?? ""
-        self.profileImageUrl = data[FirebaseConstants.profileImageUrl] as? String ?? ""
-        self.timestamp = data[FirebaseConstants.timestamp] as? Timestamp ?? Timestamp(date: Date())
-    }
-}
 
 class MainMessagesViewModel: ObservableObject {
     
@@ -73,12 +57,24 @@ class MainMessagesViewModel: ObservableObject {
                     
                     // Pulls the most recent message : edited / created
                     if let index = self.recentMessages.firstIndex(where: { rm in
-                        return rm.documentId == docId
+                        return rm.id == docId
                     }) {
                         self.recentMessages.remove(at: index)
                     }
+                    
+                    // With firebase firestore swift no need to init
+                    do {
+                       if let rm = try change.document.data(as: RecentMessage.self) {
+                            self.recentMessages.insert(rm, at: 0)
+                        }
+                    } catch {
+                        print(error)
+                    }
                      
-                    self.recentMessages.insert(.init(documentId: docId, data: change.document.data()), at: 0)
+                    
+                   
+                    // old way without  firebase firestore swift
+                    //self.recentMessages.insert(.init(documentId: docId, data: change.document.data()), at: 0)
                     //    }
                 })
             }
@@ -309,7 +305,7 @@ struct MainMessagesView: View {
                             
                             Spacer()
                             
-                            Text("22d")
+                            Text(recentMessage.timestamp.description)
                                 .font(.system(size: 14, weight: .semibold))
                         }
                     }
