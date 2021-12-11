@@ -15,7 +15,12 @@ struct FirebaseConstants {
     static let fromId = "fromId"
     static let toId = "toId"
     static let text = "text"
+    static let email = "email"
+
+    static let profileImageUrl = "profileImageUrl"
     static let timestamp = "timestamp" // fix acroos app
+    
+    static let recent_messages = "recent_messages"
 }
 
 
@@ -117,7 +122,7 @@ class ChatLogViewModel: ObservableObject {
             FirebaseConstants.fromId : fromId,
             FirebaseConstants.toId : toId,
             FirebaseConstants.text : self.chatText,
-            "timestamp" : Timestamp()
+            FirebaseConstants.timestamp : Timestamp()
             
         ] as [String : Any]
         
@@ -128,9 +133,13 @@ class ChatLogViewModel: ObservableObject {
                 return
             }
             print("Sucessfully saved current user sending messages")
+            
+            self.persistRecentMessages()
+            
+            // Clear...
             self.chatText = ""
             
-            // change made scroll to bottom...
+            // change made - scroll to bottom...
             self.count += 1
         }
         
@@ -150,8 +159,50 @@ class ChatLogViewModel: ObservableObject {
             print("Recipent saved message as well")
             
         }
+    }
+    
+    private func persistRecentMessages(){
+        // Collection IDs
+        guard let chatUser = chatUser else { return } // removes need for otionals...
         
-       
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        guard let toId = self.chatUser?.uid else { return }
+        
+        // Location
+        let document = FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.recent_messages)
+            .document(uid)
+            .collection(FirebaseConstants.messages)
+            .document(toId)
+        
+        // dictionary - data to be stored
+        let data = [
+            FirebaseConstants.timestamp : Timestamp(),
+            FirebaseConstants.text : self.chatText,
+            FirebaseConstants.fromId : uid,
+            FirebaseConstants.toId: toId,
+            FirebaseConstants.profileImageUrl : chatUser.profileImageUrl,
+            FirebaseConstants.email : chatUser.email
+        ] as [String : Any]
+        
+        // you'll need to save another very similar dictionary for the recipient of this message ....
+        
+        // ??...(fix)
+        
+        
+        
+        // Save
+        document.setData(data) { error in
+            // error handling
+            if let error = error {
+                self.errorMessage = "Fail to save recent message: \(error)"
+                print( self.errorMessage)
+                return
+            }
+            
+            
+            
+        }
     }
     
     // tracks when ever there is a change
